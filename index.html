@@ -5834,10 +5834,11 @@
                 box-sizing: border-box !important;
             `);
             
-            // Create popup content box
+            // Create popup content box with unique ID to avoid CSS conflicts
             const popup = document.createElement('div');
-            popup.className = 'popup-content';
-            popup.setAttribute('style', `
+            popup.id = 'xl-popup-content-box';
+            // Use direct style property assignment for maximum specificity
+            popup.style.cssText = `
                 background: white !important;
                 border-radius: 16px !important;
                 padding: 24px 20px !important;
@@ -5846,7 +5847,10 @@
                 width: 100% !important;
                 max-width: 340px !important;
                 box-sizing: border-box !important;
-            `);
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+            `;
             
             // Popup HTML content
             popup.innerHTML = `
