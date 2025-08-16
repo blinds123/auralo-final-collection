@@ -5779,22 +5779,11 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - DEVICE-AWARE CENTERING VERSION
+        // XL SELLOUT POPUP - UNIVERSAL VERSION (Works on ALL devices)
         function showXLSelloutPopup() {
-            console.log('[Device-Aware Popup] Starting display...');
+            console.log('[Universal Popup] Starting display...');
             
-            // Detect device type
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
-            const viewportWidth = window.innerWidth;
-            const isSmallScreen = viewportWidth <= 768;
-            
-            console.log('[Device Detection]', {
-                isMobile,
-                isIOS,
-                viewportWidth,
-                userAgent: navigator.userAgent.substring(0, 50)
-            });
+            // No device detection needed - universal approach
             
             // Remove any existing popup
             const existingOverlay = document.getElementById('xl-popup-overlay');
@@ -5829,60 +5818,35 @@
                 padding: 0 !important;
             `;
             
-            // Create wrapper with device-specific positioning
-            const wrapper = document.createElement('div');
-            
-            if (isMobile || isSmallScreen) {
-                // Mobile/Phone positioning - use flex centering
-                overlay.style.cssText = `
-                    position: fixed !important;
-                    top: 0 !important;
-                    left: 0 !important;
-                    right: 0 !important;
-                    bottom: 0 !important;
-                    width: 100% !important;
-                    height: 100% !important;
-                    background: rgba(0, 0, 0, 0.8) !important;
-                    z-index: 2147483647 !important;
-                    display: flex !important;
-                    justify-content: center !important;
-                    align-items: center !important;
-                    padding: 20px !important;
-                    box-sizing: border-box !important;
-                `;
-                
-                wrapper.style.cssText = `
-                    position: relative !important;
-                    width: 100% !important;
-                    max-width: 340px !important;
-                    margin: auto !important;
-                `;
-            } else {
-                // Desktop positioning - use transform centering
-                wrapper.style.cssText = `
-                    position: fixed !important;
-                    top: 50% !important;
-                    left: 50% !important;
-                    transform: translate(-50%, -50%) !important;
-                    -webkit-transform: translate(-50%, -50%) !important;
-                    width: 90% !important;
-                    max-width: 340px !important;
-                    z-index: 2147483648 !important;
-                `;
-            }
+            // Universal flexbox centering - works on ALL devices
+            overlay.setAttribute('style', `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.8) !important;
+                z-index: 2147483647 !important;
+                display: flex !important;
+                justify-content: center !important;
+                align-items: center !important;
+                padding: 20px !important;
+                box-sizing: border-box !important;
+            `);
             
             // Create popup content box
             const popup = document.createElement('div');
             popup.className = 'popup-content';
-            popup.style.cssText = `
+            popup.setAttribute('style', `
                 background: white !important;
                 border-radius: 16px !important;
                 padding: 24px 20px !important;
                 text-align: center !important;
                 box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
                 width: 100% !important;
+                max-width: 340px !important;
                 box-sizing: border-box !important;
-            `;
+            `);
             
             // Popup HTML content
             popup.innerHTML = `
@@ -5931,9 +5895,8 @@
             bodyStyle.width = '100%';
             htmlStyle.overflow = 'hidden';
             
-            // Assemble elements: popup -> wrapper -> overlay -> body
-            wrapper.appendChild(popup);
-            overlay.appendChild(wrapper);
+            // Append popup directly to overlay (no wrapper needed with flexbox)
+            overlay.appendChild(popup);
             document.body.appendChild(overlay);
             
             // Add click handler to overlay for closing
