@@ -5779,9 +5779,9 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - VIEWPORT-CENTERED VERSION
+        // XL SELLOUT POPUP - MOBILE-CENTERED VERSION (Fixed for iPhones)
         function showXLSelloutPopup() {
-            console.log('[Popup] Starting display...');
+            console.log('[Mobile Popup] Starting display...');
             
             // Remove any existing popup
             const existingOverlay = document.getElementById('xl-popup-overlay');
@@ -5801,42 +5801,45 @@
             overlay.id = 'xl-popup-overlay';
             overlay.dataset.scrollPosition = scrollY;
             
-            // Apply critical overlay styles inline with !important to avoid conflicts
+            // Set overlay as background only
             overlay.style.cssText = `
                 position: fixed !important;
                 top: 0 !important;
                 left: 0 !important;
                 right: 0 !important;
                 bottom: 0 !important;
-                width: 100vw !important;
-                height: 100vh !important;
-                background-color: rgba(0, 0, 0, 0.8) !important;
-                display: flex !important;
-                justify-content: center !important;
-                align-items: center !important;
+                width: 100% !important;
+                height: 100% !important;
+                background: rgba(0, 0, 0, 0.8) !important;
                 z-index: 2147483647 !important;
-                padding: 20px !important;
-                box-sizing: border-box !important;
-                overflow: auto !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            `;
+            
+            // Create centered wrapper using transform technique
+            const wrapper = document.createElement('div');
+            wrapper.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                -webkit-transform: translate(-50%, -50%) !important;
+                width: 90% !important;
+                max-width: 340px !important;
+                z-index: 2147483648 !important;
             `;
             
             // Create popup content box
             const popup = document.createElement('div');
             popup.className = 'popup-content';
-            
-            // Apply popup styles with !important
             popup.style.cssText = `
-                background-color: white !important;
+                background: white !important;
                 border-radius: 16px !important;
                 padding: 24px 20px !important;
-                max-width: 340px !important;
-                width: 90% !important;
                 text-align: center !important;
                 box-shadow: 0 20px 40px rgba(0,0,0,0.3) !important;
-                max-height: 80vh !important;
-                overflow: auto !important;
-                position: relative !important;
-                margin: auto !important;
+                width: 100% !important;
+                box-sizing: border-box !important;
             `;
             
             // Popup HTML content
@@ -5886,8 +5889,9 @@
             bodyStyle.width = '100%';
             htmlStyle.overflow = 'hidden';
             
-            // Append popup to overlay, then overlay to body
-            overlay.appendChild(popup);
+            // Assemble elements: popup -> wrapper -> overlay -> body
+            wrapper.appendChild(popup);
+            overlay.appendChild(wrapper);
             document.body.appendChild(overlay);
             
             // Add click handler to overlay for closing
@@ -5897,29 +5901,7 @@
                 }
             });
             
-            // Add CSS if not already added for better mobile support
-            if (!document.getElementById('popup-center-styles')) {
-                const style = document.createElement('style');
-                style.id = 'popup-center-styles';
-                style.textContent = `
-                    /* Ensure proper centering on all devices */
-                    #xl-popup-overlay {
-                        position: fixed !important;
-                        inset: 0 !important;
-                        display: flex !important;
-                        justify-content: center !important;
-                        align-items: center !important;
-                    }
-                    
-                    #xl-popup-overlay .popup-content {
-                        position: relative !important;
-                        transform: none !important;
-                        top: auto !important;
-                        left: auto !important;
-                    }
-                `;
-                document.head.appendChild(style);
-            }
+            // No additional CSS needed - all styles are inline
             
             console.log('XL popup displayed successfully');
         }
