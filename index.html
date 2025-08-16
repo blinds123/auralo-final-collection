@@ -5779,117 +5779,120 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - iPhone/Mobile First Implementation V3
+        // XL SELLOUT POPUP - BULLETPROOF MOBILE VERSION
         function showXLSelloutPopup() {
-            console.log('Starting showXLSelloutPopup...');
+            console.log('Starting XL popup display...');
             
-            // Hide any scarcity notifications while popup is showing
+            // Hide scarcity notifications
             const scarcityContainer = document.getElementById('mobile-scarcity-container');
             if (scarcityContainer) {
                 scarcityContainer.style.display = 'none';
             }
             
-            // Remove any existing popup
-            const existing = document.getElementById('xl-popup-wrapper');
+            // Remove existing popup
+            let existing = document.getElementById('xl-popup-overlay');
+            if (!existing) {
+                existing = document.getElementById('xl-popup-wrapper');
+            }
             if (existing) {
                 existing.remove();
             }
             
-            // Save current scroll position
-            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
+            // Create overlay that covers entire viewport
+            const overlay = document.createElement('div');
+            overlay.id = 'xl-popup-overlay';
             
-            // Create wrapper that covers entire screen
-            const wrapper = document.createElement('div');
-            wrapper.id = 'xl-popup-wrapper';
+            // Critical: Use viewport units and fixed positioning
+            overlay.style.cssText = 'position: fixed !important; ' +
+                'top: 0 !important; ' +
+                'left: 0 !important; ' +
+                'width: 100vw !important; ' +
+                'height: 100vh !important; ' +
+                'background-color: rgba(0, 0, 0, 0.85) !important; ' +
+                'z-index: 2147483647 !important; ' +
+                'display: flex !important; ' +
+                'align-items: center !important; ' +
+                'justify-content: center !important; ' +
+                'padding: 20px !important; ' +
+                'box-sizing: border-box !important;';
             
-            // Use simpler positioning for better iOS compatibility
-            wrapper.style.position = 'fixed';
-            wrapper.style.top = '0';
-            wrapper.style.left = '0';
-            wrapper.style.right = '0';
-            wrapper.style.bottom = '0';
-            wrapper.style.width = '100%';
-            wrapper.style.height = '100%';
-            wrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
-            wrapper.style.zIndex = '999999';
-            wrapper.style.display = 'flex';
-            wrapper.style.alignItems = 'center';
-            wrapper.style.justifyContent = 'center';
-            wrapper.style.padding = '20px';
-            wrapper.style.boxSizing = 'border-box';
-            
-            // Create popup box with better mobile styling
+            // Create popup content box
             const popup = document.createElement('div');
-            popup.style.background = 'white';
-            popup.style.borderRadius = '20px';
-            popup.style.padding = '25px 20px';
-            popup.style.maxWidth = '320px';
-            popup.style.width = '90%';
-            popup.style.textAlign = 'center';
-            popup.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)';
-            popup.style.position = 'relative';
-            popup.style.margin = '0 auto';
+            popup.style.cssText = 'background: white !important; ' +
+                'border-radius: 20px !important; ' +
+                'padding: 25px 20px !important; ' +
+                'max-width: 320px !important; ' +
+                'width: 90% !important; ' +
+                'text-align: center !important; ' +
+                'box-shadow: 0 10px 30px rgba(0,0,0,0.3) !important; ' +
+                'position: relative !important;';
             
-            // Create HTML content as a string
-            const popupHTML = [
-                '<div style="color: #d4a574; font-size: 32px; margin-bottom: 10px;">⏰</div>',
-                '<h3 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 22px; font-weight: 700; line-height: 1.2;">',
-                'Size 44 Just Sold Out!',
-                '</h3>',
-                '<p style="margin: 0 0 15px 0; color: #666; font-size: 15px; line-height: 1.4;">',
-                'Most popular sizes selling fast:',
-                '</p>',
-                '<div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; gap: 10px; margin-bottom: 20px;">',
-                '<span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">38: 3 left</span>',
-                '<span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">40: 2 left</span>',
-                '</div>',
-                '<button id="xl-close-btn" style="',
-                'background: linear-gradient(135deg, #d4a574, #c49561);',
-                'color: white;',
-                'border: none;',
-                'padding: 14px 24px;',
-                'border-radius: 30px;',
-                'font-size: 17px;',
-                'font-weight: 600;',
-                'width: 100%;',
-                'cursor: pointer;',
-                '-webkit-appearance: none;',
-                '-webkit-tap-highlight-color: transparent;',
-                'touch-action: manipulation;',
-                '">Select Your Size Now</button>'
-            ].join('');
+            // Popup HTML content
+            popup.innerHTML = `
+                <div style="font-size: 32px; margin-bottom: 10px;">⏰</div>
+                <h3 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 22px; font-weight: 700;">
+                    Size 44 Just Sold Out!
+                </h3>
+                <p style="margin: 0 0 15px 0; color: #666; font-size: 15px;">
+                    Most popular sizes selling fast:
+                </p>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px;">
+                    <span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">
+                        38: 3 left
+                    </span>
+                    <span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">
+                        40: 2 left
+                    </span>
+                </div>
+                <button onclick="window.closeXLPopup()" style="
+                    background: linear-gradient(135deg, #d4a574, #c49561);
+                    color: white;
+                    border: none;
+                    padding: 14px 24px;
+                    border-radius: 30px;
+                    font-size: 17px;
+                    font-weight: 600;
+                    width: 100%;
+                    cursor: pointer;
+                    -webkit-appearance: none;
+                ">Select Your Size Now</button>
+            `;
             
-            popup.innerHTML = popupHTML;
+            // Save scroll position
+            const scrollY = window.pageYOffset;
+            overlay.dataset.scrollPosition = scrollY;
             
-            // Append popup to wrapper
-            wrapper.appendChild(popup);
+            // Append popup to overlay
+            overlay.appendChild(popup);
             
-            // Lock body scroll for iOS
-            document.body.style.cssText = [
-                'overflow: hidden',
-                'position: fixed',
-                'width: 100%',
-                'height: 100%',
-                'top: ' + (-scrollY) + 'px'
-            ].join('; ');
+            // Append overlay to body
+            document.body.appendChild(overlay);
             
-            // Add wrapper to body
-            document.body.appendChild(wrapper);
+            // Lock body scroll
+            document.body.style.overflow = 'hidden';
             
-            // Force reflow to ensure styles are applied
-            wrapper.offsetHeight;
-            
-            // Setup close function
-            const closePopup = function() {
-                console.log('Closing XL popup...');
-                const wrapperEl = document.getElementById('xl-popup-wrapper');
-                if (wrapperEl) {
-                    wrapperEl.remove();
+            // Add click handler to overlay for closing
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    window.closeXLPopup();
                 }
+            });
+            
+            console.log('XL popup displayed successfully');
+        }
+        
+        // Close XL Popup function 
+        window.closeXLPopup = function() {
+            const overlay = document.getElementById('xl-popup-overlay');
+            if (overlay) {
+                // Get saved scroll position
+                const scrollY = parseInt(overlay.dataset.scrollPosition) || 0;
+                
+                // Remove overlay
+                overlay.remove();
                 
                 // Restore body scroll
-                document.body.style.cssText = '';
-                window.scrollTo(0, scrollY);
+                document.body.style.overflow = '';
                 
                 // Restore scarcity notifications
                 const scarcityContainer = document.getElementById('mobile-scarcity-container');
@@ -5897,65 +5900,17 @@
                     scarcityContainer.style.display = '';
                 }
                 
-                // Scroll to size selector after a brief delay
+                // Maintain scroll position (don't jump)
+                window.scrollTo(0, scrollY);
+                
+                // Optional: Scroll to size selector after a delay
                 setTimeout(function() {
                     const sizeSelector = document.querySelector('.size-selector');
                     if (sizeSelector) {
                         sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
                     }
                 }, 100);
-            };
-            
-            // Add event listeners after element is in DOM
-            setTimeout(function() {
-                const closeBtn = document.getElementById('xl-close-btn');
-                if (closeBtn) {
-                    closeBtn.addEventListener('click', closePopup);
-                    closeBtn.addEventListener('touchend', function(e) {
-                        e.preventDefault();
-                        closePopup();
-                    });
-                }
-                
-                // Close on background click
-                wrapper.addEventListener('click', function(e) {
-                    if (e.target === wrapper) {
-                        closePopup();
-                    }
-                });
-            }, 10);
-            
-            console.log('XL popup displayed successfully');
-        }
-        
-        // Close XL Popup function (compatible with new implementation)
-        window.closeXLPopup = function() {
-            const wrapper = document.getElementById('xl-popup-wrapper');
-            const overlay = document.getElementById('xl-popup-overlay');
-            
-            if (wrapper) {
-                wrapper.remove();
             }
-            if (overlay) {
-                overlay.remove();
-            }
-            
-            // Reset body styles
-            document.body.style.cssText = '';
-            
-            // Restore scarcity notifications
-            const scarcityContainer = document.getElementById('mobile-scarcity-container');
-            if (scarcityContainer) {
-                scarcityContainer.style.display = '';
-            }
-            
-            // Scroll to size selector
-            setTimeout(function() {
-                const sizeSelector = document.querySelector('.size-selector');
-                if (sizeSelector) {
-                    sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                }
-            }, 100);
         };
         
         
