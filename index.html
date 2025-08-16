@@ -5770,184 +5770,195 @@
         }
         
         // Show SimpleSwap instructions popup
-        function showSimpleSwapPopup() {
-            const walletAddress = '0xE5173e7c3089bD89cd1341b637b8e1951745ED5C';
-            const amount = selectedPrice || 29;
-            
-            // Copy wallet address to clipboard
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(walletAddress).then(() => {
-                    console.log('Wallet address copied to clipboard');
-                }).catch(err => {
-                    console.error('Failed to copy wallet address:', err);
-                });
-            }
-            
-            const popup = document.createElement('div');
-            popup.id = 'checkout-popup';
-            popup.style.cssText = `
-                position: fixed;
+// Fixed SimpleSwap popup function for mobile
+function showSimpleSwapPopup() {
+    const walletAddress = '0xE5173e7c3089bD89cd1341b637b8e1951745ED5C';
+    const amount = selectedPrice || 29;
+    
+    // Copy wallet address to clipboard
+    if (navigator.clipboard) {
+        navigator.clipboard.writeText(walletAddress).then(() => {
+            console.log('Wallet address copied to clipboard');
+        }).catch(err => {
+            console.error('Failed to copy wallet address:', err);
+        });
+    }
+    
+    // Remove any existing popups first
+    const existingPopup = document.getElementById('checkout-popup');
+    const existingOverlay = document.getElementById('simpleswap-overlay');
+    if (existingPopup) existingPopup.remove();
+    if (existingOverlay) existingOverlay.remove();
+    
+    // Create overlay
+    const overlay = document.createElement('div');
+    overlay.id = 'simpleswap-overlay';
+    overlay.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: rgba(0,0,0,0.7) !important;
+        z-index: 99998 !important;
+        overflow: hidden !important;
+    `;
+    
+    // Create popup wrapper
+    const popupWrapper = document.createElement('div');
+    popupWrapper.id = 'checkout-popup';
+    popupWrapper.style.cssText = `
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        z-index: 99999 !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        padding: 20px !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+    `;
+    
+    // Create the actual popup content
+    const popupContent = `
+        <div style="
+            background: white;
+            border-radius: 16px;
+            padding: 20px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        ">
+            <button onclick="
+                document.getElementById('checkout-popup').remove();
+                document.getElementById('simpleswap-overlay').remove();
+            " style="
+                position: sticky;
                 top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.5);
-                z-index: 10000;
-                overflow-y: auto;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                animation: fadeIn 0.3s ease-out;
-            `;
+                float: right;
+                background: white;
+                border: none;
+                font-size: 28px;
+                cursor: pointer;
+                color: #999;
+                padding: 0;
+                width: 30px;
+                height: 30px;
+                line-height: 1;
+                z-index: 1;
+            ">×</button>
             
-            popup.innerHTML = `
-                <div style="background: white; border-radius: 16px; padding: 20px; max-width: 500px; width: 90%; margin: 20px auto; max-height: 85vh; overflow-y: auto; position: relative; box-shadow: 0 10px 30px rgba(0,0,0,0.2);">
-                    <button onclick="
-                        document.getElementById('checkout-popup').remove();
-                        document.getElementById('simpleswap-overlay')?.remove();
-                    " style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 24px; cursor: pointer; color: #999; line-height: 1; z-index: 1;">×</button>
-                    
-                    <h2 style="color: #111; margin-bottom: 8px; font-size: 22px; text-align: center; font-weight: 700;">Here's How to Complete Your Exchange</h2>
-                    <p style="text-align: center; color: #666; margin-bottom: 25px; font-size: 14px;">Final step - finish your $${amount} checkout below</p>
-                    
-                    <!-- STEP 1 -->
-                    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div style="background: #4fc3f7; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600; margin-right: auto;">STEP 1</div>
-                        </div>
-                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #111; text-align: center;">Click "Exchange"</h3>
-                        
-                        <!-- SimpleSwap Preview Box -->
-                        <div style="background: #f5f5f5; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-                                <div style="flex: 1;">
-                                    <div style="color: #666; font-size: 12px; margin-bottom: 4px;">You send</div>
-                                    <div style="font-size: 20px; font-weight: 700;">${amount}</div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="color: #4fc3f7; font-size: 18px;">ℹ️</span>
-                                    <span style="background: #e0e0e0; padding: 4px 10px; border-radius: 6px; font-size: 14px;">USD ✔️</span>
-                                </div>
-                            </div>
-                            <div style="text-align: center; margin: 10px 0;">
-                                <span style="color: #999; font-size: 12px;">🔁 Floating rate only</span>
-                            </div>
-                            <div style="display: flex; align-items: center; justify-content: space-between;">
-                                <div style="flex: 1;">
-                                    <div style="color: #666; font-size: 12px; margin-bottom: 4px;">You get ≈</div>
-                                    <div style="font-size: 18px; font-weight: 600;">${amount === 29 ? '16.47' : '27.80'}</div>
-                                </div>
-                                <div style="display: flex; align-items: center; gap: 8px;">
-                                    <span style="background: #9b59b6; color: white; padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 600;">POL</span>
-                                    <span style="font-size: 14px;">MATIC ✔️</span>
-                                </div>
-                            </div>
-                            <div style="text-align: center; margin-top: 10px;">
-                                <span style="color: #4fc3f7; font-size: 12px;">Sign up to get cashback up to 0.07 USDT</span>
-                            </div>
-                        </div>
-                        <button style="width: 100%; background: #4fc3f7; color: white; border: none; padding: 14px; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer;">Exchange</button>
-                        <div style="text-align: center; margin-top: 15px;">
-                            <div style="display: inline-block; width: 40px; height: 40px; border: 3px solid #4fc3f7; border-radius: 50%; position: relative;">
-                                <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); color: #ffa500; font-size: 20px;">👆</div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <!-- STEP 2 -->
-                    <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20px; margin-bottom: 20px;">
-                        <div style="display: flex; align-items: center; margin-bottom: 15px;">
-                            <div style="background: #4fc3f7; color: white; padding: 6px 16px; border-radius: 20px; font-size: 14px; font-weight: 600;">STEP 2</div>
-                        </div>
-                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 15px; color: #111; text-align: center;">Select Mercuryo & Complete</h3>
-                        
-                        <div style="background: #f5f5f5; border-radius: 10px; padding: 15px; margin-bottom: 15px;">
-                            <label style="color: #666; font-size: 14px; display: block; margin-bottom: 8px;">Enter the wallet address</label>
-                            <div style="background: white; border: 1px solid #e0e0e0; border-radius: 8px; padding: 12px; color: #999; font-size: 14px;">The recipient's Polygon address</div>
-                        </div>
-                        
-                        <div style="margin-bottom: 15px;">
-                            <p style="font-size: 14px; font-weight: 600; margin-bottom: 10px; text-align: center;">Your Wallet Address:</p>
-                            <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 8px; padding: 12px; text-align: center;">
-                                <code style="font-family: monospace; font-size: 13px; word-break: break-all; color: #111;">${walletAddress}</code>
-                            </div>
-                            <p style="text-align: center; color: #666; font-size: 12px; margin-top: 8px;">Copy this address and paste it in the field above</p>
-                        </div>
-                        
-                        <div style="background: #fff9c4; border: 1px solid #f9a825; border-radius: 8px; padding: 12px; margin-bottom: 15px;">
-                            <p style="font-size: 13px; color: #111; text-align: center; margin: 0;">
-                                <span style="font-weight: 600;">💡 Pro tip:</span> Select "Mercuryo" as your payment method for the fastest checkout!
-                            </p>
-                        </div>
-                        
-                        <div style="text-align: center; color: #4caf50; font-size: 14px; font-weight: 600;">
-                            ✅ Address Copied to Clipboard!
-                        </div>
-                    </div>
-                    
-                    <button onclick="
-                        document.getElementById('checkout-popup').remove();
-                        document.getElementById('simpleswap-overlay')?.remove();
-                        window.open('https://simpleswap.io/exchange?from=usd-usd&to=pol-matic&amount=' + ${amount}, '_blank');
-                    " style="
-                        width: 100%;
-                        background: #4fc3f7;
-                        color: white;
-                        border: none;
-                        padding: 16px;
-                        border-radius: 8px;
-                        font-weight: 600;
-                        font-size: 16px;
-                        cursor: pointer;
-                        box-shadow: 0 4px 12px rgba(79, 195, 247, 0.3);
-                        transition: all 0.3s ease;
-                    " onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
-                        Complete Your Exchange with SimpleSwap
-                    </button>
-                    
-                    <p style="text-align: center; margin-top: 15px; font-size: 13px; color: #7f8c8d;">
-                        Secure checkout • SSL encrypted • Wallet address copied
-                    </p>
+            <h2 style="color: #111; margin-bottom: 8px; font-size: 20px; text-align: center; font-weight: 700; clear: both;">
+                Here's How to Complete Your Exchange
+            </h2>
+            <p style="text-align: center; color: #666; margin-bottom: 20px; font-size: 14px;">
+                Final step - finish your $${amount} checkout below
+            </p>
+            
+            <!-- STEP 1 -->
+            <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="background: #4fc3f7; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">STEP 1</div>
                 </div>
-            `;
-            
-            // Add overlay
-            const overlay = document.createElement('div');
-            overlay.id = 'simpleswap-overlay';
-            overlay.style.cssText = `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0,0,0,0.7);
-                z-index: 9999;
-            `;
-            
-            document.body.appendChild(overlay);
-            document.body.appendChild(popup);
-            
-            // Show success message for wallet copy
-            setTimeout(() => {
-                const successMsg = document.createElement('div');
-                successMsg.style.cssText = `
-                    position: fixed;
-                    top: 20px;
-                    right: 20px;
-                    background: #10b981;
-                    color: white;
-                    padding: 15px 20px;
-                    border-radius: 8px;
-                    z-index: 10001;
-                    animation: slideIn 0.3s ease;
-                `;
-                successMsg.innerHTML = '✅ Wallet address copied to clipboard!';
-                document.body.appendChild(successMsg);
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #111; text-align: center;">Click "Exchange"</h3>
                 
-                setTimeout(() => successMsg.remove(), 3000);
-            }, 100);
-        }
-        
+                <!-- SimpleSwap Preview Box -->
+                <div style="background: #f5f5f5; border-radius: 8px; padding: 12px; margin-bottom: 10px; font-size: 14px;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px;">
+                        <div>
+                            <div style="color: #666; font-size: 11px; margin-bottom: 2px;">You send</div>
+                            <div style="font-size: 18px; font-weight: 700;">${amount}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="background: #e0e0e0; padding: 3px 8px; border-radius: 4px; font-size: 12px;">USD ✔️</span>
+                        </div>
+                    </div>
+                    <div style="text-align: center; margin: 8px 0;">
+                        <span style="color: #999; font-size: 11px;">🔁 Floating rate</span>
+                    </div>
+                    <div style="display: flex; align-items: center; justify-content: space-between;">
+                        <div>
+                            <div style="color: #666; font-size: 11px; margin-bottom: 2px;">You get ≈</div>
+                            <div style="font-size: 16px; font-weight: 600;">${amount === 29 ? '16.47' : '27.80'}</div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;">
+                            <span style="background: #9b59b6; color: white; padding: 2px 6px; border-radius: 3px; font-size: 10px; font-weight: 600;">POL</span>
+                            <span style="font-size: 12px;">MATIC</span>
+                        </div>
+                    </div>
+                </div>
+                <button style="width: 100%; background: #4fc3f7; color: white; border: none; padding: 12px; border-radius: 6px; font-size: 14px; font-weight: 600;">Exchange</button>
+            </div>
+            
+            <!-- STEP 2 -->
+            <div style="background: #fff; border: 1px solid #e0e0e0; border-radius: 12px; padding: 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                    <div style="background: #4fc3f7; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600;">STEP 2</div>
+                </div>
+                <h3 style="font-size: 16px; font-weight: 700; margin-bottom: 10px; color: #111; text-align: center;">Enter Wallet Address</h3>
+                
+                <div style="background: #e8f5e9; border: 2px solid #4caf50; border-radius: 6px; padding: 10px; text-align: center; margin-bottom: 10px;">
+                    <code style="font-family: monospace; font-size: 11px; word-break: break-all; color: #111; display: block;">
+                        ${walletAddress}
+                    </code>
+                </div>
+                <p style="text-align: center; color: #666; font-size: 12px; margin: 5px 0;">Copy this address and paste it</p>
+                
+                <div style="text-align: center; color: #4caf50; font-size: 13px; font-weight: 600;">
+                    ✅ Address Copied to Clipboard!
+                </div>
+            </div>
+            
+            <button onclick="
+                document.getElementById('checkout-popup').remove();
+                document.getElementById('simpleswap-overlay').remove();
+                window.open('https://simpleswap.io/exchange?from=usd-usd&to=pol-matic&amount=${amount}', '_blank');
+            " style="
+                width: 100%;
+                background: #4fc3f7;
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 8px;
+                font-weight: 600;
+                font-size: 15px;
+                cursor: pointer;
+            ">
+                Complete Your Exchange with SimpleSwap
+            </button>
+            
+            <p style="text-align: center; margin-top: 10px; font-size: 12px; color: #7f8c8d;">
+                Secure checkout • SSL encrypted
+            </p>
+        </div>
+    `;
+    
+    popupWrapper.innerHTML = popupContent;
+    
+    // Append to body
+    document.body.appendChild(overlay);
+    document.body.appendChild(popupWrapper);
+    
+    // Prevent body scroll when popup is open
+    document.body.style.overflow = 'hidden';
+    
+    // Restore body scroll when popup is closed
+    overlay.onclick = () => {
+        overlay.remove();
+        popupWrapper.remove();
+        document.body.style.overflow = '';
+    };
+}        
         function showCheckoutPopup() {
             // Now just call the SimpleSwap popup
             showSimpleSwapPopup();
