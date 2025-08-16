@@ -5779,51 +5779,54 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - PROPER FLEXBOX CENTERING
+        // XL SELLOUT POPUP - FINAL MOBILE-OPTIMIZED VERSION
         function showXLSelloutPopup() {
-            console.log('Starting XL popup display...');
+            console.log('Displaying XL popup...');
             
-            // Hide scarcity notifications
+            // Clean up existing popups and hide notifications
+            const existingOverlay = document.getElementById('xl-popup-overlay');
+            if (existingOverlay) existingOverlay.remove();
+            
             const scarcityContainer = document.getElementById('mobile-scarcity-container');
             if (scarcityContainer) {
                 scarcityContainer.style.display = 'none';
             }
             
-            // Remove any existing popup
-            let existing = document.getElementById('xl-popup-overlay');
-            if (!existing) {
-                existing = document.getElementById('xl-popup-wrapper');
-            }
-            if (existing) {
-                existing.remove();
-            }
-            
-            // Create full-screen overlay with proper centering
+            // Create overlay with bulletproof centering
             const overlay = document.createElement('div');
             overlay.id = 'xl-popup-overlay';
             
-            // Use inset: 0 shorthand for full coverage
+            // Apply styles directly for consistency
             overlay.style.position = 'fixed';
-            overlay.style.inset = '0';  // Covers top: 0, right: 0, bottom: 0, left: 0
-            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.7)';
+            overlay.style.top = '0';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '0';
+            overlay.style.width = '100vw';
+            overlay.style.height = '100vh';
+            overlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
             overlay.style.display = 'flex';
+            overlay.style.flexDirection = 'column';
             overlay.style.justifyContent = 'center';
             overlay.style.alignItems = 'center';
-            overlay.style.zIndex = '9999';
+            overlay.style.zIndex = '2147483647';
             overlay.style.padding = '20px';
             overlay.style.boxSizing = 'border-box';
+            overlay.style.overflow = 'auto';
             
-            // Create popup content box (centered via flexbox parent)
+            // Create popup content box
             const popup = document.createElement('div');
             popup.className = 'popup-content';
-            popup.style.backgroundColor = '#fff';
-            popup.style.padding = '25px 20px';
-            popup.style.borderRadius = '10px';
+            popup.style.backgroundColor = 'white';
+            popup.style.borderRadius = '16px';
+            popup.style.padding = '24px 20px';
+            popup.style.maxWidth = '340px';
+            popup.style.width = '100%';
             popup.style.textAlign = 'center';
-            popup.style.maxWidth = '320px';
-            popup.style.width = '90%';
-            popup.style.boxShadow = '0 10px 30px rgba(0,0,0,0.3)';
-            popup.style.position = 'relative';
+            popup.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)';
+            popup.style.maxHeight = '80vh';
+            popup.style.overflow = 'auto';
+            popup.style.margin = 'auto';
             
             // Popup HTML content
             popup.innerHTML = `
@@ -5856,18 +5859,19 @@
                 ">Select Your Size Now</button>
             `;
             
-            // Save scroll position
-            const scrollY = window.pageYOffset;
+            // Save scroll position and lock body properly
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
             overlay.dataset.scrollPosition = scrollY;
             
-            // Append popup to overlay
-            overlay.appendChild(popup);
-            
-            // Append overlay to body
-            document.body.appendChild(overlay);
-            
-            // Lock body scroll
+            // Lock body scroll to prevent cut-off
             document.body.style.overflow = 'hidden';
+            document.body.style.position = 'fixed';
+            document.body.style.width = '100%';
+            document.body.style.top = `-${scrollY}px`;
+            
+            // Append popup to overlay, then overlay to body
+            overlay.appendChild(popup);
+            document.body.appendChild(overlay);
             
             // Add click handler to overlay for closing
             overlay.addEventListener('click', function(e) {
@@ -5913,17 +5917,20 @@
                 // Remove overlay
                 overlay.remove();
                 
-                // Restore body scroll
+                // Restore body scroll properly
                 document.body.style.overflow = '';
+                document.body.style.position = '';
+                document.body.style.width = '';
+                document.body.style.top = '';
+                
+                // Restore scroll position
+                window.scrollTo(0, scrollY);
                 
                 // Restore scarcity notifications
                 const scarcityContainer = document.getElementById('mobile-scarcity-container');
                 if (scarcityContainer) {
                     scarcityContainer.style.display = '';
                 }
-                
-                // Maintain scroll position (don't jump)
-                window.scrollTo(0, scrollY);
                 
                 // Optional: Scroll to size selector after a delay
                 setTimeout(function() {
