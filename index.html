@@ -5682,39 +5682,64 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP FUNCTION - Red Alert
+        // XL SELLOUT POPUP FUNCTION - Red Alert (Mobile-Optimized)
         function showXLSelloutPopup() {
-            const popup = document.createElement('div');
-            popup.id = 'xl-sellout-popup';
-            popup.style.cssText = `
-                position: fixed;
-                top: 50%;
-                left: 50%;
-                transform: translate(-50%, -50%);
-                background: white;
-                color: #333;
-                padding: 25px;
-                border-radius: 16px;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-                border: 2px solid #d4a574;
-                z-index: 10000;
-                text-align: center;
-                font-weight: 600;
-                font-size: 16px;
-                max-width: 90%;
-                width: 380px;
-                animation: popupSlideIn 0.3s ease-out;
+            // Remove any existing popup first
+            const existingPopup = document.getElementById('xl-sellout-popup');
+            const existingOverlay = document.getElementById('xl-popup-overlay');
+            if (existingPopup) existingPopup.remove();
+            if (existingOverlay) existingOverlay.remove();
+            
+            // Create overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'xl-popup-overlay';
+            overlay.style.cssText = `
+                position: fixed !important;
+                top: 0 !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                background: rgba(0,0,0,0.6) !important;
+                z-index: 99998 !important;
+                pointer-events: auto !important;
             `;
             
-            popup.innerHTML = `
-                <div style="font-size: 20px; margin-bottom: 12px; color: #d4a574;">⏰ URGENT UPDATE</div>
-                <div style="font-size: 18px; margin-bottom: 12px; font-weight: 700;">Size 44 Just Sold Out!</div>
+            // Create popup container
+            const popupContainer = document.createElement('div');
+            popupContainer.id = 'xl-sellout-popup';
+            popupContainer.className = 'sold-out-popup';
+            popupContainer.style.cssText = `
+                position: fixed !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                background: white !important;
+                color: #333 !important;
+                padding: 20px !important;
+                border-radius: 16px !important;
+                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3) !important;
+                border: 2px solid #d4a574 !important;
+                z-index: 99999 !important;
+                text-align: center !important;
+                font-weight: 600 !important;
+                font-size: 16px !important;
+                max-width: 90% !important;
+                width: 360px !important;
+                animation: popupSlideIn 0.3s ease-out !important;
+                box-sizing: border-box !important;
+            `;
+            
+            popupContainer.innerHTML = `
+                <div style="font-size: 20px; margin-bottom: 12px; color: #d4a574; font-weight: bold;">⏰ URGENT UPDATE</div>
+                <div style="font-size: 18px; margin-bottom: 12px; font-weight: 700; color: #333;">Size 44 Just Sold Out!</div>
                 <div style="font-size: 14px; margin-bottom: 8px; color: #666;">Most popular sizes selling fast:</div>
-                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px;">
-                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px;">38: 3 left</span>
-                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px;">40: 2 left</span>
+                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px; color: #333;">38: 3 left</span>
+                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px; color: #333;">40: 2 left</span>
                 </div>
-                <button onclick="closeXLPopup(); scrollToSizeSelector();" style="
+                <button onclick="window.closeXLPopup();" style="
                     background: linear-gradient(135deg, #d4a574, #c49561);
                     color: white;
                     border: none;
@@ -5724,33 +5749,60 @@
                     cursor: pointer;
                     font-size: 16px;
                     width: 100%;
+                    box-sizing: border-box;
                 ">Select Your Size Before It's Gone</button>
             `;
             
-            // Add popup CSS animations
-            const style = document.createElement('style');
-            style.textContent = `
-                @keyframes popupSlideIn {
-                    from { transform: translate(-50%, -50%) scale(0.8); opacity: 0; }
-                    to { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-                }
-            `;
-            document.head.appendChild(style);
-            
-            // Only append if not already shown
-            if (!document.getElementById('xl-sellout-popup')) {
-                document.body.appendChild(popup);
-                console.log('🚨 XL sellout popup displayed at ' + new Date().toLocaleTimeString());
+            // Add popup CSS animations if not already added
+            if (!document.getElementById('xl-popup-styles')) {
+                const style = document.createElement('style');
+                style.id = 'xl-popup-styles';
+                style.textContent = `
+                    @keyframes popupSlideIn {
+                        from { 
+                            transform: translate(-50%, -50%) scale(0.8) !important; 
+                            opacity: 0; 
+                        }
+                        to { 
+                            transform: translate(-50%, -50%) scale(1) !important; 
+                            opacity: 1; 
+                        }
+                    }
+                    @media (max-width: 480px) {
+                        #xl-sellout-popup {
+                            width: 90% !important;
+                            padding: 15px !important;
+                        }
+                    }
+                `;
+                document.head.appendChild(style);
             }
+            
+            // Prevent body scroll
+            document.body.style.overflow = 'hidden';
+            
+            // Append elements
+            document.body.appendChild(overlay);
+            document.body.appendChild(popupContainer);
+            
+            console.log('🚨 XL sellout popup displayed at ' + new Date().toLocaleTimeString());
         }
         
-        // CLOSE XL POPUP FUNCTION
-        function closeXLPopup() {
+        // Close XL Popup function
+        window.closeXLPopup = function() {
             const popup = document.getElementById('xl-sellout-popup');
-            if (popup) {
-                popup.remove();
+            const overlay = document.getElementById('xl-popup-overlay');
+            if (popup) popup.remove();
+            if (overlay) overlay.remove();
+            document.body.style.overflow = '';
+            
+            // Scroll to size selector
+            const sizeSelector = document.querySelector('.size-selector');
+            if (sizeSelector) {
+                sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
             }
-        }
+        };
+        
         
         // CHECKOUT POPUP FUNCTION - Shows when buy button clicked
         function openCheckout(type) {
