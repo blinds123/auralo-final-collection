@@ -5779,9 +5779,22 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - MOBILE-CENTERED VERSION (Fixed for iPhones)
+        // XL SELLOUT POPUP - DEVICE-AWARE CENTERING VERSION
         function showXLSelloutPopup() {
-            console.log('[Mobile Popup] Starting display...');
+            console.log('[Device-Aware Popup] Starting display...');
+            
+            // Detect device type
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent);
+            const viewportWidth = window.innerWidth;
+            const isSmallScreen = viewportWidth <= 768;
+            
+            console.log('[Device Detection]', {
+                isMobile,
+                isIOS,
+                viewportWidth,
+                userAgent: navigator.userAgent.substring(0, 50)
+            });
             
             // Remove any existing popup
             const existingOverlay = document.getElementById('xl-popup-overlay');
@@ -5816,18 +5829,47 @@
                 padding: 0 !important;
             `;
             
-            // Create centered wrapper using transform technique
+            // Create wrapper with device-specific positioning
             const wrapper = document.createElement('div');
-            wrapper.style.cssText = `
-                position: fixed !important;
-                top: 50% !important;
-                left: 50% !important;
-                transform: translate(-50%, -50%) !important;
-                -webkit-transform: translate(-50%, -50%) !important;
-                width: 90% !important;
-                max-width: 340px !important;
-                z-index: 2147483648 !important;
-            `;
+            
+            if (isMobile || isSmallScreen) {
+                // Mobile/Phone positioning - use flex centering
+                overlay.style.cssText = `
+                    position: fixed !important;
+                    top: 0 !important;
+                    left: 0 !important;
+                    right: 0 !important;
+                    bottom: 0 !important;
+                    width: 100% !important;
+                    height: 100% !important;
+                    background: rgba(0, 0, 0, 0.8) !important;
+                    z-index: 2147483647 !important;
+                    display: flex !important;
+                    justify-content: center !important;
+                    align-items: center !important;
+                    padding: 20px !important;
+                    box-sizing: border-box !important;
+                `;
+                
+                wrapper.style.cssText = `
+                    position: relative !important;
+                    width: 100% !important;
+                    max-width: 340px !important;
+                    margin: auto !important;
+                `;
+            } else {
+                // Desktop positioning - use transform centering
+                wrapper.style.cssText = `
+                    position: fixed !important;
+                    top: 50% !important;
+                    left: 50% !important;
+                    transform: translate(-50%, -50%) !important;
+                    -webkit-transform: translate(-50%, -50%) !important;
+                    width: 90% !important;
+                    max-width: 340px !important;
+                    z-index: 2147483648 !important;
+                `;
+            }
             
             // Create popup content box
             const popup = document.createElement('div');
