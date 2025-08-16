@@ -2830,39 +2830,136 @@
     <!-- REMOVED SIZE WARNING FROM TOP -->
     
     <script>
-        // Show floating notifications
-        function showPurchaseNotification() {
-            const names = ['Emma', 'Sophia', 'Madison', 'Olivia', 'Ava', 'Isabella', 'Charlotte', 'Mia'];
-            const locations = ['NYC', 'LA', 'Miami', 'Chicago', 'Dallas', 'Boston', 'Seattle', 'Denver'];
-            const sizes = ['36', '38', '40', '42'];
+        // MOBILE-OPTIMIZED SCARCITY NOTIFICATIONS
+        let activeNotifications = 0;
+        const MAX_NOTIFICATIONS = 1; // Only show 1 at a time for non-intrusive experience
+        
+        function showMobileScarcityNotification() {
+            // Don't show if we already have max notifications
+            if (activeNotifications >= MAX_NOTIFICATIONS) return;
             
+            // Create container if it doesn't exist
+            let container = document.getElementById('mobile-scarcity-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'mobile-scarcity-container';
+                container.style.cssText = [
+                    'position: fixed',
+                    'bottom: 20px',
+                    'left: 10px',
+                    'right: 10px',
+                    'z-index: 9999',
+                    'pointer-events: none'
+                ].join('; ');
+                document.body.appendChild(container);
+            }
+            
+            // Notification variations for authenticity
+            const notifications = [
+                {
+                    icon: '🛍️',
+                    text: 'Size 40 just sold',
+                    subtext: '2 left in stock',
+                    color: '#d4a574'
+                },
+                {
+                    icon: '⚡',
+                    text: 'Someone just bought',
+                    subtext: 'Size 38 • Miami',
+                    color: '#c49561'
+                },
+                {
+                    icon: '🔥',
+                    text: '3 people viewing',
+                    subtext: 'Size 42 right now',
+                    color: '#d4a574'
+                },
+                {
+                    icon: '✨',
+                    text: 'Emma from NYC',
+                    subtext: 'Just saved €1,111',
+                    color: '#c49561'
+                }
+            ];
+            
+            const notif = notifications[Math.floor(Math.random() * notifications.length)];
+            
+            // Create notification element
             const notification = document.createElement('div');
-            notification.className = 'purchase-notification';
+            notification.style.cssText = [
+                'background: white',
+                'border-radius: 12px',
+                'padding: 12px 16px',
+                'box-shadow: 0 4px 20px rgba(0,0,0,0.15)',
+                'display: flex',
+                'align-items: center',
+                'gap: 12px',
+                'margin-bottom: 10px',
+                'pointer-events: auto',
+                'transform: translateY(100px)',
+                'opacity: 0',
+                'transition: all 0.3s ease',
+                'max-width: 320px',
+                'margin-left: auto',
+                'margin-right: auto'
+            ].join('; ');
+            
             notification.innerHTML = `
-                <div style="width: 50px; height: 50px; background: linear-gradient(135deg, var(--primary-gold), var(--accent-bronze)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px;">
-                    ✓
+                <div style="font-size: 24px; flex-shrink: 0;">${notif.icon}</div>
+                <div style="flex-grow: 1;">
+                    <div style="font-size: 14px; font-weight: 600; color: #1a1a1a; line-height: 1.2;">
+                        ${notif.text}
+                    </div>
+                    <div style="font-size: 12px; color: #666; margin-top: 2px;">
+                        ${notif.subtext}
+                    </div>
                 </div>
-                <div>
-                    <div style="font-weight: 600; color: #000;">${names[Math.floor(Math.random() * names.length)]} from ${locations[Math.floor(Math.random() * locations.length)]}</div>
-                    <div style="font-size: 14px; color: #666;">Just saved €1,111 on Size ${sizes[Math.floor(Math.random() * sizes.length)]}</div>
-                    <div style="font-size: 12px; color: var(--primary-gold); margin-top: 4px;">Verified Purchase</div>
-                </div>
+                <div style="width: 8px; height: 8px; background: ${notif.color}; border-radius: 50%; flex-shrink: 0; animation: pulse 2s infinite;"></div>
             `;
             
-            document.getElementById('purchase-notifications').appendChild(notification);
+            // Add pulse animation if not already added
+            if (!document.getElementById('scarcity-styles')) {
+                const style = document.createElement('style');
+                style.id = 'scarcity-styles';
+                style.textContent = `
+                    @keyframes pulse {
+                        0%, 100% { opacity: 1; transform: scale(1); }
+                        50% { opacity: 0.6; transform: scale(1.2); }
+                    }
+                `;
+                document.head.appendChild(style);
+            }
             
+            container.appendChild(notification);
+            activeNotifications++;
+            
+            // Animate in
             setTimeout(() => {
-                notification.remove();
-            }, 5000);
+                notification.style.transform = 'translateY(0)';
+                notification.style.opacity = '1';
+            }, 100);
+            
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.style.transform = 'translateY(100px)';
+                notification.style.opacity = '0';
+                setTimeout(() => {
+                    notification.remove();
+                    activeNotifications--;
+                }, 300);
+            }, 4000);
         }
         
-        // Show purchase notifications every 8-15 seconds
-        setInterval(() => {
-            showPurchaseNotification();
-        }, Math.random() * 7000 + 8000);
+        // Show notifications strategically
+        // First one after 8 seconds
+        setTimeout(showMobileScarcityNotification, 8000);
         
-        // Show first notification after 3 seconds
-        setTimeout(showPurchaseNotification, 3000);
+        // Then every 20-35 seconds (non-intrusive)
+        setInterval(() => {
+            if (Math.random() > 0.4) { // 60% chance to show
+                showMobileScarcityNotification();
+            }
+        }, Math.random() * 15000 + 20000);
         
         
         // Show size warning after scroll
@@ -5682,151 +5779,177 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP FUNCTION - Red Alert (Mobile-Optimized V2)
+        // XL SELLOUT POPUP - iPhone/Mobile First Implementation
         function showXLSelloutPopup() {
-            // Remove any existing popup first
-            const existingPopup = document.getElementById('xl-sellout-popup');
-            const existingOverlay = document.getElementById('xl-popup-overlay');
-            if (existingPopup) existingPopup.remove();
-            if (existingOverlay) existingOverlay.remove();
+            console.log('Starting showXLSelloutPopup...');
             
-            // Create a full-screen container to ensure proper mobile display
-            const fullScreenContainer = document.createElement('div');
-            fullScreenContainer.id = 'xl-popup-overlay';
-            fullScreenContainer.style.cssText = `
-                position: fixed !important;
-                top: 0 !important;
-                left: 0 !important;
-                width: 100% !important;
-                height: 100% !important;
-                background: rgba(0,0,0,0.7) !important;
-                z-index: 2147483646 !important;
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
-                padding: 20px !important;
-                box-sizing: border-box !important;
-                -webkit-transform: translateZ(0) !important;
-                transform: translateZ(0) !important;
-            `;
-            
-            // Create popup with simpler positioning
-            const popupContainer = document.createElement('div');
-            popupContainer.id = 'xl-sellout-popup';
-            popupContainer.className = 'sold-out-popup';
-            popupContainer.style.cssText = `
-                position: relative !important;
-                background: white !important;
-                color: #333 !important;
-                padding: 20px !important;
-                border-radius: 16px !important;
-                box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4) !important;
-                border: 2px solid #d4a574 !important;
-                z-index: 2147483647 !important;
-                text-align: center !important;
-                font-weight: 600 !important;
-                font-size: 16px !important;
-                max-width: 340px !important;
-                width: 90% !important;
-                animation: popupSlideIn 0.3s ease-out !important;
-                box-sizing: border-box !important;
-                margin: auto !important;
-                -webkit-transform: translateZ(0) !important;
-                transform: translateZ(0) !important;
-            `;
-            
-            popupContainer.innerHTML = `
-                <div style="font-size: 20px; margin-bottom: 12px; color: #d4a574; font-weight: bold;">⏰ URGENT UPDATE</div>
-                <div style="font-size: 18px; margin-bottom: 12px; font-weight: 700; color: #333;">Size 44 Just Sold Out!</div>
-                <div style="font-size: 14px; margin-bottom: 8px; color: #666;">Most popular sizes selling fast:</div>
-                <div style="display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
-                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px; color: #333;">38: 3 left</span>
-                    <span style="padding: 4px 8px; background: #fff3cd; border: 1px solid #d4a574; border-radius: 4px; font-size: 12px; color: #333;">40: 2 left</span>
-                </div>
-                <button onclick="window.closeXLPopup();" style="
-                    background: linear-gradient(135deg, #d4a574, #c49561);
-                    color: white;
-                    border: none;
-                    padding: 12px 24px;
-                    border-radius: 50px;
-                    font-weight: bold;
-                    cursor: pointer;
-                    font-size: 16px;
-                    width: 100%;
-                    box-sizing: border-box;
-                    -webkit-appearance: none;
-                ">Select Your Size Before It's Gone</button>
-            `;
-            
-            // Add popup CSS animations if not already added
-            if (!document.getElementById('xl-popup-styles')) {
-                const style = document.createElement('style');
-                style.id = 'xl-popup-styles';
-                style.textContent = `
-                    @keyframes popupSlideIn {
-                        from { 
-                            opacity: 0; 
-                            transform: scale(0.8);
-                        }
-                        to { 
-                            opacity: 1; 
-                            transform: scale(1);
-                        }
-                    }
-                    
-                    /* Ensure popup works on all mobile browsers */
-                    #xl-popup-overlay {
-                        -webkit-backface-visibility: hidden !important;
-                        backface-visibility: hidden !important;
-                        -webkit-perspective: 1000 !important;
-                        perspective: 1000 !important;
-                    }
-                    
-                    #xl-sellout-popup {
-                        -webkit-backface-visibility: hidden !important;
-                        backface-visibility: hidden !important;
-                    }
-                `;
-                document.head.appendChild(style);
+            // Remove any existing popup
+            const existing = document.getElementById('xl-popup-wrapper');
+            if (existing) {
+                existing.remove();
             }
             
-            // Prevent body scroll on mobile
-            document.body.style.overflow = 'hidden';
-            document.body.style.position = 'fixed';
-            document.body.style.width = '100%';
+            // Save current scroll position
+            const scrollY = window.pageYOffset || document.documentElement.scrollTop;
             
-            // Append popup to the fullscreen container, then append container to body
-            fullScreenContainer.appendChild(popupContainer);
-            document.body.appendChild(fullScreenContainer);
+            // Create wrapper that covers entire screen
+            const wrapper = document.createElement('div');
+            wrapper.id = 'xl-popup-wrapper';
             
-            // Make sure popup is visible by scrolling to top
-            window.scrollTo(0, 0);
+            // Set styles using setAttribute for maximum compatibility
+            wrapper.setAttribute('style', [
+                'position: fixed',
+                'top: 0',
+                'left: 0',
+                'right: 0',  
+                'bottom: 0',
+                'width: 100%',
+                'height: 100%',
+                'background-color: rgba(0, 0, 0, 0.85)',
+                'z-index: 999999',
+                'display: -webkit-box',
+                'display: -webkit-flex', 
+                'display: flex',
+                '-webkit-box-align: center',
+                '-webkit-align-items: center',
+                'align-items: center',
+                '-webkit-box-pack: center',
+                '-webkit-justify-content: center',
+                'justify-content: center',
+                'padding: 20px',
+                'box-sizing: border-box',
+                '-webkit-tap-highlight-color: transparent'
+            ].join('; '));
             
-            // Add click handler to overlay to close popup
-            fullScreenContainer.addEventListener('click', function(e) {
-                if (e.target === fullScreenContainer) {
-                    window.closeXLPopup();
+            // Create popup box
+            const popup = document.createElement('div');
+            popup.setAttribute('style', [
+                'background: white',
+                'border-radius: 20px',
+                'padding: 25px 20px',
+                'max-width: 320px',
+                'width: calc(100% - 40px)',
+                'text-align: center',
+                'box-shadow: 0 20px 40px rgba(0,0,0,0.3)',
+                'position: relative',
+                '-webkit-transform: translateZ(0)',
+                'transform: translateZ(0)'
+            ].join('; '));
+            
+            // Create HTML content as a string
+            const popupHTML = [
+                '<div style="color: #d4a574; font-size: 32px; margin-bottom: 10px;">⏰</div>',
+                '<h3 style="margin: 0 0 10px 0; color: #1a1a1a; font-size: 22px; font-weight: 700; line-height: 1.2;">',
+                'Size 44 Just Sold Out!',
+                '</h3>',
+                '<p style="margin: 0 0 15px 0; color: #666; font-size: 15px; line-height: 1.4;">',
+                'Most popular sizes selling fast:',
+                '</p>',
+                '<div style="display: -webkit-box; display: -webkit-flex; display: flex; -webkit-box-pack: center; -webkit-justify-content: center; justify-content: center; gap: 10px; margin-bottom: 20px;">',
+                '<span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">38: 3 left</span>',
+                '<span style="background: #fff3cd; padding: 6px 12px; border-radius: 6px; font-size: 13px; color: #1a1a1a; border: 1px solid #d4a574;">40: 2 left</span>',
+                '</div>',
+                '<button id="xl-close-btn" style="',
+                'background: linear-gradient(135deg, #d4a574, #c49561);',
+                'color: white;',
+                'border: none;',
+                'padding: 14px 24px;',
+                'border-radius: 30px;',
+                'font-size: 17px;',
+                'font-weight: 600;',
+                'width: 100%;',
+                'cursor: pointer;',
+                '-webkit-appearance: none;',
+                '-webkit-tap-highlight-color: transparent;',
+                'touch-action: manipulation;',
+                '">Select Your Size Now</button>'
+            ].join('');
+            
+            popup.innerHTML = popupHTML;
+            
+            // Append popup to wrapper
+            wrapper.appendChild(popup);
+            
+            // Lock body scroll for iOS
+            document.body.style.cssText = [
+                'overflow: hidden',
+                'position: fixed',
+                'width: 100%',
+                'height: 100%',
+                'top: ' + (-scrollY) + 'px'
+            ].join('; ');
+            
+            // Add wrapper to body
+            document.body.appendChild(wrapper);
+            
+            // Force reflow to ensure styles are applied
+            wrapper.offsetHeight;
+            
+            // Setup close function
+            const closePopup = function() {
+                console.log('Closing XL popup...');
+                const wrapperEl = document.getElementById('xl-popup-wrapper');
+                if (wrapperEl) {
+                    wrapperEl.remove();
                 }
-            });
+                
+                // Restore body scroll
+                document.body.style.cssText = '';
+                window.scrollTo(0, scrollY);
+                
+                // Scroll to size selector after a brief delay
+                setTimeout(function() {
+                    const sizeSelector = document.querySelector('.size-selector');
+                    if (sizeSelector) {
+                        sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 100);
+            };
             
-            console.log('🚨 XL sellout popup displayed at ' + new Date().toLocaleTimeString());
+            // Add event listeners after element is in DOM
+            setTimeout(function() {
+                const closeBtn = document.getElementById('xl-close-btn');
+                if (closeBtn) {
+                    closeBtn.addEventListener('click', closePopup);
+                    closeBtn.addEventListener('touchend', function(e) {
+                        e.preventDefault();
+                        closePopup();
+                    });
+                }
+                
+                // Close on background click
+                wrapper.addEventListener('click', function(e) {
+                    if (e.target === wrapper) {
+                        closePopup();
+                    }
+                });
+            }, 10);
+            
+            console.log('XL popup displayed successfully');
         }
         
-        // Close XL Popup function
+        // Close XL Popup function (compatible with new implementation)
         window.closeXLPopup = function() {
+            const wrapper = document.getElementById('xl-popup-wrapper');
             const overlay = document.getElementById('xl-popup-overlay');
-            if (overlay) overlay.remove();
+            
+            if (wrapper) {
+                wrapper.remove();
+            }
+            if (overlay) {
+                overlay.remove();
+            }
             
             // Reset body styles
-            document.body.style.overflow = '';
-            document.body.style.position = '';
-            document.body.style.width = '';
+            document.body.style.cssText = '';
             
             // Scroll to size selector
-            const sizeSelector = document.querySelector('.size-selector');
-            if (sizeSelector) {
-                sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            }
+            setTimeout(function() {
+                const sizeSelector = document.querySelector('.size-selector');
+                if (sizeSelector) {
+                    sizeSelector.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                }
+            }, 100);
         };
         
         
