@@ -6728,9 +6728,11 @@ function showSimpleSwapPopup() {
         }
         
         // XL SELLOUT TIMING SYSTEM - Fixed to show after 15 seconds
+        // DEPLOYMENT VERSION: Device-aware centering active
         let popupShown = false;
         setTimeout(() => {
             if (!popupShown) {
+                console.log('[15-SEC TRIGGER] Calling device-aware popup');
                 showXLSelloutPopup();
                 popupShown = true;
             }
