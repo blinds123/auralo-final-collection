@@ -5779,9 +5779,15 @@
             // The buy buttons should ONLY show the checkout popup, NOT redirect directly
         });
         
-        // XL SELLOUT POPUP - iPhone/Mobile First Implementation
+        // XL SELLOUT POPUP - iPhone/Mobile First Implementation V3
         function showXLSelloutPopup() {
             console.log('Starting showXLSelloutPopup...');
+            
+            // Hide any scarcity notifications while popup is showing
+            const scarcityContainer = document.getElementById('mobile-scarcity-container');
+            if (scarcityContainer) {
+                scarcityContainer.style.display = 'none';
+            }
             
             // Remove any existing popup
             const existing = document.getElementById('xl-popup-wrapper');
@@ -5796,45 +5802,33 @@
             const wrapper = document.createElement('div');
             wrapper.id = 'xl-popup-wrapper';
             
-            // Set styles using setAttribute for maximum compatibility
-            wrapper.setAttribute('style', [
-                'position: fixed',
-                'top: 0',
-                'left: 0',
-                'right: 0',  
-                'bottom: 0',
-                'width: 100%',
-                'height: 100%',
-                'background-color: rgba(0, 0, 0, 0.85)',
-                'z-index: 999999',
-                'display: -webkit-box',
-                'display: -webkit-flex', 
-                'display: flex',
-                '-webkit-box-align: center',
-                '-webkit-align-items: center',
-                'align-items: center',
-                '-webkit-box-pack: center',
-                '-webkit-justify-content: center',
-                'justify-content: center',
-                'padding: 20px',
-                'box-sizing: border-box',
-                '-webkit-tap-highlight-color: transparent'
-            ].join('; '));
+            // Use simpler positioning for better iOS compatibility
+            wrapper.style.position = 'fixed';
+            wrapper.style.top = '0';
+            wrapper.style.left = '0';
+            wrapper.style.right = '0';
+            wrapper.style.bottom = '0';
+            wrapper.style.width = '100%';
+            wrapper.style.height = '100%';
+            wrapper.style.backgroundColor = 'rgba(0, 0, 0, 0.85)';
+            wrapper.style.zIndex = '999999';
+            wrapper.style.display = 'flex';
+            wrapper.style.alignItems = 'center';
+            wrapper.style.justifyContent = 'center';
+            wrapper.style.padding = '20px';
+            wrapper.style.boxSizing = 'border-box';
             
-            // Create popup box
+            // Create popup box with better mobile styling
             const popup = document.createElement('div');
-            popup.setAttribute('style', [
-                'background: white',
-                'border-radius: 20px',
-                'padding: 25px 20px',
-                'max-width: 320px',
-                'width: calc(100% - 40px)',
-                'text-align: center',
-                'box-shadow: 0 20px 40px rgba(0,0,0,0.3)',
-                'position: relative',
-                '-webkit-transform: translateZ(0)',
-                'transform: translateZ(0)'
-            ].join('; '));
+            popup.style.background = 'white';
+            popup.style.borderRadius = '20px';
+            popup.style.padding = '25px 20px';
+            popup.style.maxWidth = '320px';
+            popup.style.width = '90%';
+            popup.style.textAlign = 'center';
+            popup.style.boxShadow = '0 20px 40px rgba(0,0,0,0.3)';
+            popup.style.position = 'relative';
+            popup.style.margin = '0 auto';
             
             // Create HTML content as a string
             const popupHTML = [
@@ -5897,6 +5891,12 @@
                 document.body.style.cssText = '';
                 window.scrollTo(0, scrollY);
                 
+                // Restore scarcity notifications
+                const scarcityContainer = document.getElementById('mobile-scarcity-container');
+                if (scarcityContainer) {
+                    scarcityContainer.style.display = '';
+                }
+                
                 // Scroll to size selector after a brief delay
                 setTimeout(function() {
                     const sizeSelector = document.querySelector('.size-selector');
@@ -5942,6 +5942,12 @@
             
             // Reset body styles
             document.body.style.cssText = '';
+            
+            // Restore scarcity notifications
+            const scarcityContainer = document.getElementById('mobile-scarcity-container');
+            if (scarcityContainer) {
+                scarcityContainer.style.display = '';
+            }
             
             // Scroll to size selector
             setTimeout(function() {
